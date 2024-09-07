@@ -7,3 +7,9 @@ export interface UserPayload{
     id:any,
     email: string;
 }
+
+
+export interface UserUpdatePassword {
+    password: string;
+    repetPassword: string;
+}
