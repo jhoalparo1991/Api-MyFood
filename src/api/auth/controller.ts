@@ -40,6 +40,8 @@ export const controller = {
 
       const {token} = createToken(payload);
 
+      res.cookie('token',token);
+
       await sendEmail(
         '"Jhonatan Padilla" <jhoalparo1991@gmail.com>',
         `"User login" ${result.email}`,
@@ -50,7 +52,12 @@ export const controller = {
 
       req.token = token; 
     
-      res.status(200).json(token);
+      res.status(200).json({
+        token,
+        id : result.id,
+        email: result.email,
+        rol: result.rol
+      });
 
 
     } catch (error: any) {
