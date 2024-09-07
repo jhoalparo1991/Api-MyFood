@@ -5,7 +5,6 @@ import { development } from "./config/development";
 import helmet from "helmet";
 import router from "./routes";
 import morgan from "morgan";
-
 // Initialization
 const app = express();
 // Initialization database

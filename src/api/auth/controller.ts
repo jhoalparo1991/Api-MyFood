@@ -35,19 +35,24 @@ export const controller = {
       const payload: UserPayload = {
         id: result._id,
         email: result.email,
+        role: result.rol as string,
       };
 
-      const token = createToken(payload);
+      const {token} = createToken(payload);
 
       await sendEmail(
         '"Jhonatan Padilla" <jhoalparo1991@gmail.com>',
         `"User login" ${result.email}`,
         `User loged as ${result.fullname}`,
         `Wellcome to MyFood`,
-        `<p> Your token is ${JSON.stringify(token.token)}</p>`
+        `<p> Your token is ${JSON.stringify(token)}</p>`
       );
 
+      req.token = token; 
+    
       res.status(200).json(token);
+
+
     } catch (error: any) {
       logger.error(error.message, "error");
 
@@ -73,6 +78,7 @@ export const controller = {
       const payload: UserPayload = {
         id: result._id,
         email: result.email,
+        role: result.rol as string,
       };
       const {token} = createTokenUpdatePassword(payload);
 

@@ -6,6 +6,7 @@ export interface LoginInterface {
 export interface UserPayload{
     id:any,
     email: string;
+    role:string
 }
 
 

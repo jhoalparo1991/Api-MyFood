@@ -8,9 +8,10 @@ export const controller = {
   get: async (req: Request, res: Response) => {
     try {
       const data = await findAll();
-
+     
       res.status(200).json({
         data,
+
       });
     } catch (error: any) {
       logger.error(error.message, "error");
@@ -25,7 +26,17 @@ export const controller = {
     try {
       const id = req.params.id;
 
+      const idUserReq = req.user?.id;
+
+      if(id !== idUserReq){
+        return res.status(401).json({message: 'Unauthorized'})
+      }
+
       const data =  await findById(id);
+
+      if(!data){
+        return res.status(404).json({message: 'User not found'})
+      }
 
       res.status(200).json({
         data,
