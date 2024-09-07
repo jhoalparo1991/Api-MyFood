@@ -8,5 +8,6 @@ const authRoutes = Router();
 authRoutes.post("/", LoginValidation, controller.login);
 authRoutes.post("/forgot-password", EmailValidation, controller.forgotPassword);
 authRoutes.patch("/reset-password/:token/:id", IdValidation,ResetPasswordValidation, controller.resetPassword);
+authRoutes.get("/verify-token/:token",controller.verify);
 
 export default authRoutes;

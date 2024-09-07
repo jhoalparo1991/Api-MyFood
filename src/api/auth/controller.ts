@@ -168,4 +168,43 @@ export const controller = {
       });
     }
   },
+  verify: async (req: Request, res: Response) => {
+    try {
+
+      const {token} = req.params
+      
+      if(!token){
+        return res.status(401).json({message: 'Unauthorized'})
+      }
+
+      const validToken = verifyToken(token,development.JWT_SECRET_ACCESS_TOKEN);
+
+      if(!validToken){
+        return res.status(401).json({message: 'Invalid token'})
+      }
+      const {payload} : any = validToken;
+      const _id = payload.id;
+      
+      const user = await findById(_id);
+      
+      if(!user){
+        return res.status(404).json({message: 'User not found'})
+      }
+
+      res.status(200).json({
+        "id": user.id,
+        "fullname":user.fullname,
+        "email":user.email,
+        "rol" : user.rol
+      });
+    } catch (error: any) {
+
+      logger.error(error.message, "error");
+
+      res.status(400).json({
+        status: 400,
+        message: error.message,
+      });
+    }
+  },
 };
