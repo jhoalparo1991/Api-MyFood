@@ -80,7 +80,7 @@ export const controller = {
 
       res.status(400).json({
         status: 400,
-        message: error.message,
+        message: Array(error.message),
       });
     }
   },
