@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { passwordHash } from "../../helpers/password-hash";
 import { UserEditInterface, UserI } from "./utils/user.interface";
-import { disable, edit, findAll, findById, register } from "./service";
+import { disable, edit, findAll, findByDocument, findByDocumentUpdate, findByEmail, findByEmailUpdate, findById, register } from "./service";
 import { logger } from "../../config/winston";
 
 export const controller = {
-  get: async (req: Request, res: Response) => {
+  get: async (req: Request, res: Response, next:NextFunction) => {
     try {
       const data = await findAll();
      
@@ -14,44 +14,33 @@ export const controller = {
 
       });
     } catch (error: any) {
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+      next(error);
     }
   },
-  getOne: async (req: Request, res: Response) => {
+  getOne: async (req: Request, res: Response, next:NextFunction) => {
     try {
       const id = req.params.id;
 
       const idUserReq = req.user?.id;
 
       if(id !== idUserReq){
-        return res.status(401).json({message: 'Unauthorized'})
+        throw new Error('Email already exists');
       }
 
       const data =  await findById(id);
 
       if(!data){
-        return res.status(404).json({message: 'User not found'})
+        throw new Error('User not found');
       }
 
       res.status(200).json({
         data,
       });
     } catch (error: any) {
-
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+      next(error);
     }
   },
-  create: async (req: Request, res: Response) => {
+  create: async (req: Request, res: Response,next:NextFunction) => {
     try {
       const { fullname, type_doc, document, email, password, rol, is_active } =
         req.body;
@@ -68,6 +57,14 @@ export const controller = {
         is_active,
       };
 
+      if(await findByEmail(email)){
+        throw new Error('Email already exists');
+      }
+
+      if(await findByDocument(document)){
+        throw new Error('Document already exists');
+      }
+
       const result = await register(user);
 
       res.status(201).json({
@@ -76,15 +73,10 @@ export const controller = {
         data: result,
       });
     } catch (error: any) {
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: Array(error.message),
-      });
+      next(error)
     }
   },
-  update: async (req: Request, res: Response) => {
+  update: async (req: Request, res: Response, next:NextFunction) => {
     try {
       const { fullname, type_doc, document, email, rol, is_active } =
         req.body;
@@ -100,6 +92,14 @@ export const controller = {
         is_active,
       };
 
+      if(await findByEmailUpdate(email, id)){
+        throw new Error('Email already exists');
+      }
+
+      if(await findByDocumentUpdate(document,id)){
+        throw new Error('Document already exists');
+      }
+
       const result =  await edit(user, id);
 
       res.status(200).json({
@@ -108,20 +108,15 @@ export const controller = {
         data: result,
       });
     } catch (error: any) {
-
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+      next(error)
     }
   },
-  disable: async (req: Request, res: Response) => {
+  disable: async (req: Request, res: Response, next:NextFunction) => {
     try {
       const id = req.params.id;
 
       const result =  await disable(id);
+
 
       res.status(200).json({
         status: 200,
@@ -129,13 +124,8 @@ export const controller = {
         data: result,
       });
     } catch (error: any) {
+      next(error)
 
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
     }
   },
 };

@@ -1,5 +1,4 @@
-import { Request, Response } from "express";
-import { logger } from "../../config/winston";
+import { NextFunction, Request, Response } from "express";
 import { findByEmail, findById, login, resetPassword } from "./service";
 import { LoginInterface, UserPayload, UserUpdatePassword } from "./utils/auth.interface";
 import { passwordCompare, passwordHash } from "../../helpers/password-hash";
@@ -8,7 +7,7 @@ import { sendEmail } from "../../helpers/nodemailer";
 import { development } from "../../config/development";
 
 export const controller = {
-  login: async (req: Request, res: Response) => {
+  login: async (req: Request, res: Response,next:NextFunction) => {
     try {
       const { email, password }: LoginInterface = req.body;
 
@@ -18,18 +17,21 @@ export const controller = {
       };
       const result = await login(data);
 
-      if (!result) {
-        throw Error("Email or password wrong");
+      if (!result){
+        throw new Error('Invalid email or password')
+
       }
 
       const comparePassword = await passwordCompare(password, result.password);
 
       if (!comparePassword) {
-        throw Error("Email or password wrong");
+        throw new Error('Invalid email or password')
+
       }
 
       if (result.is_active === false) {
-        throw Error("Account is inactive");
+        throw new Error('Your account is inactive')
+
       }
 
       const payload: UserPayload = {
@@ -61,27 +63,25 @@ export const controller = {
 
 
     } catch (error: any) {
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+      next(error)
     }
   },
-  forgotPassword: async (req: Request, res: Response) => {
+  forgotPassword: async (req: Request, res: Response,next:NextFunction) => {
     try {
       const { email } = req.body;
 
       const result = await findByEmail(email);
 
       if (!result) {
-        throw Error("Your email not found in the system");
+        throw new Error('Email not found')
+
       }
 
       if (result.is_active === false) {
-        throw Error("Account is inactive");
+        throw new Error('Account is inactive')
+
       }
+
       const payload: UserPayload = {
         id: result._id,
         email: result.email,
@@ -107,15 +107,10 @@ export const controller = {
         data: message,
       });
     } catch (error: any) {
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+      next(error);
     }
   },
-  resetPassword: async (req: Request, res: Response) => {
+  resetPassword: async (req: Request, res: Response,next:NextFunction) => {
     try {
       const { password, repet_password } = req.body;
       const { id,token } = req.params;
@@ -123,20 +118,22 @@ export const controller = {
       const result = await findById(id);
 
       if(password !== repet_password){
-        throw Error("Passwords do not match");
+        throw new Error('Passwords do not match')
       }
 
       if (!result) {
-        throw Error("User not found");
+        throw new Error('User not found')
+
       }
 
       if (result.is_active === false) {
-        throw Error("Account is inactive");
+        throw new Error('User is not active')
+
       }
 
       if(!verifyToken(token, development.JWT_SECRET_TOKEN_CHANGE_PASSWORD)){
-        throw Error("Token is invalid or expired");
-      }      
+        throw new Error('Token is invalid or expired')
+      }     
 
       const data:UserUpdatePassword = {
           password: await passwordHash(password),
@@ -160,27 +157,22 @@ export const controller = {
         user
       });
     } catch (error: any) {
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+      next(error)
     }
   },
-  verify: async (req: Request, res: Response) => {
+  verify: async (req: Request, res: Response,next:NextFunction) => {
     try {
 
       const {token} = req.params
       
       if(!token){
-        return res.status(401).json({message: 'Unauthorized'})
+        throw new Error('Unauthorized')
       }
 
       const validToken = verifyToken(token,development.JWT_SECRET_ACCESS_TOKEN);
 
       if(!validToken){
-        return res.status(401).json({message: 'Invalid token'})
+        throw new Error('Invalid token')
       }
       const {payload} : any = validToken;
       const _id = payload.id;
@@ -188,7 +180,7 @@ export const controller = {
       const user = await findById(_id);
       
       if(!user){
-        return res.status(404).json({message: 'User not found'})
+        throw new Error('User not found')
       }
 
       res.status(200).json({
@@ -197,14 +189,8 @@ export const controller = {
         "email":user.email,
         "rol" : user.rol
       });
-    } catch (error: any) {
-
-      logger.error(error.message, "error");
-
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+    } catch (error: any ) {
+      next(error)
     }
   },
 };

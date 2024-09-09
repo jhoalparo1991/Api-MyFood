@@ -7,15 +7,11 @@ export const ValidateRole = (role: string[]) => {
       const userRole = req.user?.role as string;
 
       if (!role.includes(userRole)) {
-        return res.status(403).json({ message: "Access denied" });
+        throw new Error('Access denied')
       }
       next();
     } catch (error: any) {
-      logger.error(error.message, "error");
-      res.status(400).json({
-        status: 400,
-        message: error.message,
-      });
+      next(error)
     }
   };
 };

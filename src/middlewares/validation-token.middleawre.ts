@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { logger } from "../config/winston";
 import { verifyToken } from "../helpers/jsonwebtoken";
 import { development } from "../config/development";
 
@@ -27,10 +26,6 @@ export const ValidationToken = (
     
     next();
   } catch (error: any) {
-    logger.error(error.message, "error");
-    res.status(400).json({
-      status: 400,
-      message: error.message,
-    });
+    next(error);
   }
 };

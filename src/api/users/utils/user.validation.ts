@@ -21,7 +21,14 @@ export const CreateUserValidation = [
     .isEmpty()
     .withMessage("El numero de documento es requerido")
     .isNumeric()
-    .withMessage("El documento debe ser numerico "),
+    .withMessage("El documento debe ser numerico ")
+    .isLength({
+      min: 8,
+      max: 20
+    }).withMessage({
+      min: "El documento debe tener al menos 8 caracteres",
+      max: "El documento debe tener como maximo 20 caracteres"
+    }),
   check("email")
     .exists()
     .not()

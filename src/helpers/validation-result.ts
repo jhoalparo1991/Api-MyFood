@@ -8,11 +8,6 @@ export const validationResult = (req:Request, res:Response, next:NextFunction)=>
         validation(req).throw();
         return next();
     } catch (error:any) {
-        res.status(400);
-        res.send({
-            status: 400,
-            errors : error.array()
-        })
-        logger.info(error.array(),'error');
+        next(error)
     }
 }

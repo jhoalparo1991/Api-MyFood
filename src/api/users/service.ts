@@ -28,3 +28,21 @@ export const disable = (id: string) => {
 export const findById = (id: string) => {
   return userModel.findById({ _id:id });
 };
+
+
+export const findByEmail = (email: string) => {
+  return userModel.findOne({email});
+};
+
+export const findByDocument = (document: string) => {
+  return userModel.findOne({document});
+};
+
+
+export const findByEmailUpdate = (email: string,id:string) => {
+  return userModel.findOne({email:email, _id:{$ne:id}});
+};
+
+export const findByDocumentUpdate = (document: string,id:string) => {
+  return userModel.findOne({document:document, _id:{$ne:id}});
+};
