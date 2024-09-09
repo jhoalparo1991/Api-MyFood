@@ -24,7 +24,7 @@ export const controller = {
       const idUserReq = req.user?.id;
 
       if(id !== idUserReq){
-        throw new Error('Email already exists');
+        throw new Error('Unauthorized');
       }
 
       const data =  await findById(id);

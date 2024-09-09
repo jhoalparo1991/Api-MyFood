@@ -4,7 +4,7 @@ import { userModel } from "./model";
 export const findAll = () => {
   return userModel.find({
     is_active: true,
-  });
+  }).select('-password');
 };
 
 export const register = (data: UserI) => {
@@ -26,7 +26,7 @@ export const disable = (id: string) => {
 };
 
 export const findById = (id: string) => {
-  return userModel.findById({ _id:id });
+  return userModel.findById({ _id:id }).select('-password');
 };
 
 
