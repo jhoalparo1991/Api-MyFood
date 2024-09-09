@@ -4,7 +4,6 @@ import cors from "cors";
 import { development } from "./config/development";
 import helmet from "helmet";
 import router from "./routes";
-import morgan from "morgan";
 import { errorHandle } from "./middlewares/error-handle";
 // Initialization
 const app = express();
@@ -22,6 +21,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 
 // Routes
 app.use("/api/v1/", router);

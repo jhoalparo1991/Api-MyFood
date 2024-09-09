@@ -2,7 +2,6 @@ import { Router } from "express";
 import { controller } from "./controller";
 
 import { EmailValidation, IdValidation, LoginValidation, ResetPasswordValidation } from "./utils/auth.validation";
-
 const authRoutes = Router();
 
 authRoutes.post("/", LoginValidation, controller.login);
