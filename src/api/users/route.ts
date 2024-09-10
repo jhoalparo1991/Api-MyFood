@@ -8,6 +8,7 @@ import {
 import { ValidationToken } from "../../middlewares/validation-token.middleawre";
 import { ValidateRole } from "../../middlewares/role.middleware";
 import { Roles } from "../../utils/roles";
+
 const userRoutes = Router();
 
 userRoutes.get(

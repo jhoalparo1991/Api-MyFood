@@ -7,11 +7,20 @@ import { logger } from "../../config/winston";
 export const controller = {
   get: async (req: Request, res: Response, next:NextFunction) => {
     try {
-      const data = await findAll();
+
+      const page:number = Number(req.query.page) || 1;
+      const limit:number = Number(req.query.limit) || 10;
+
+      const data = await findAll().skip((page -1) * limit).limit(limit).lean();
+      const total = await findAll().countDocuments();
+      const totalPages = Math.ceil(total / limit);
      
       res.status(200).json({
         data,
-
+        total,
+        totalPages,
+        currentPage: page,
+        limit
       });
     } catch (error: any) {
       next(error);

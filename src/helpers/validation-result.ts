@@ -5,9 +5,11 @@ import { logger } from "../config/winston";
 
 export const validationResult = (req:Request, res:Response, next:NextFunction)=>{
     try {
-        validation(req).throw();
-        return next();
-    } catch (error:any) {
-        next(error)
+        validation(req).throw()
+        return next()
+    } catch (err:any) {
+        res.status(403)
+        res.json({ errors: err.array() })
+        // next(err)
     }
 }

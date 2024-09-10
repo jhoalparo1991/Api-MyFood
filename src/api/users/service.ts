@@ -46,3 +46,7 @@ export const findByEmailUpdate = (email: string,id:string) => {
 export const findByDocumentUpdate = (document: string,id:string) => {
   return userModel.findOne({document:document, _id:{$ne:id}});
 };
+
+export const countUsers = ()=>{
+  return userModel.countDocuments();
+}
