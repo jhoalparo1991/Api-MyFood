@@ -23,7 +23,10 @@ export const controller = {
         limit
       });
     } catch (error: any) {
-      next(error);
+      res.status(500).json({
+        message : error.message,
+        stack: error.stack
+       });
     }
   },
   getOne: async (req: Request, res: Response, next:NextFunction) => {
@@ -33,20 +36,23 @@ export const controller = {
       const idUserReq = req.user?.id;
 
       if(id !== idUserReq){
-        throw new Error('Unauthorized');
+        return res.status(403).json({message: "You don't have permission to access this resource"})
       }
 
       const data =  await findById(id);
 
       if(!data){
-        throw new Error('User not found');
+        return res.status(404).json({message: "User not found"})
       }
 
       res.status(200).json({
         data,
       });
     } catch (error: any) {
-      next(error);
+      res.status(500).json({
+        message : error.message,
+        stack: error.stack
+       });
     }
   },
   create: async (req: Request, res: Response,next:NextFunction) => {
@@ -67,11 +73,12 @@ export const controller = {
       };
 
       if(await findByEmail(email)){
-        throw new Error('Email already exists');
+        return res.status(403).json({message: "Email already exists"})
+
       }
 
       if(await findByDocument(document)){
-        throw new Error('Document already exists');
+        return res.status(403).json({message: "Document already exists"})
       }
 
       const result = await register(user);
@@ -82,7 +89,10 @@ export const controller = {
         data: result,
       });
     } catch (error: any) {
-      next(error)
+      res.status(500).json({
+        message : error.message,
+        stack: error.stack
+       });
     }
   },
   update: async (req: Request, res: Response, next:NextFunction) => {
@@ -102,11 +112,11 @@ export const controller = {
       };
 
       if(await findByEmailUpdate(email, id)){
-        throw new Error('Email already exists');
+        return res.status(403).json({message: "Email already exists"})
       }
 
       if(await findByDocumentUpdate(document,id)){
-        throw new Error('Document already exists');
+        return res.status(403).json({message: "Document already exists"})
       }
 
       const result =  await edit(user, id);
@@ -117,12 +127,21 @@ export const controller = {
         data: result,
       });
     } catch (error: any) {
-      next(error)
+      res.status(500).json({
+        message : error.message,
+        stack: error.stack
+       });
     }
   },
   disable: async (req: Request, res: Response, next:NextFunction) => {
     try {
       const id = req.params.id;
+
+      const exists = await findById(id);
+
+      if(!exists){
+        return res.status(404).json({message: "User not found"})
+      }
 
       const result =  await disable(id);
 
@@ -133,7 +152,10 @@ export const controller = {
         data: result,
       });
     } catch (error: any) {
-      next(error)
+      res.status(500).json({
+        message : error.message,
+        stack: error.stack
+       });
 
     }
   },
