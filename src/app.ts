@@ -1,5 +1,4 @@
 import express from "express";
-import { MongooseDB } from "./config/mongoose";
 import cors from "cors";
 import { development } from "./config/development";
 import helmet from "helmet";
@@ -8,7 +7,6 @@ import { errorHandle } from "./middlewares/error-handle";
 // Initialization
 const app = express();
 // Initialization database
-MongooseDB();
 
 // Middlewares
 app.use(helmet());
