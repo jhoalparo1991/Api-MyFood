@@ -55,7 +55,7 @@ export const controller = {
         sameSite: "none",
       });
 
-      await sendEmail(
+     const message =  await sendEmail(
         '"Jhonatan Padilla" <jhoalparo1991@gmail.com>',
         `"User login" ${result.email}`,
         `User loged as ${result.fullname}`,
@@ -70,6 +70,7 @@ export const controller = {
         id: result.id,
         email: result.email,
         rol: result.rol,
+        messageId : message.messageId
       });
     } catch (error: any) {
       logger.error(error.message,'error');
@@ -115,7 +116,7 @@ export const controller = {
 
       res.status(200).json({
         message: "Email sended successfully",
-        data: message,
+        data: message.accepted,
       });
     } catch (error: any) {
       res.status(403).json({
@@ -153,7 +154,7 @@ export const controller = {
       };
       const user = await resetPassword(data, id);
 
-      await sendEmail(
+      const message = await sendEmail(
         '"Jhonatan Padilla" <jhoalparo1991@gmail.com>',
         `"User email " ${result.email}`,
         `User fullname ${result.fullname}`,
@@ -167,6 +168,7 @@ export const controller = {
       res.status(200).json({
         message: "Password changed successfully",
         user,
+        messageId : message.messageId
       });
     } catch (error: any) {
       res.status(403).json({
@@ -218,6 +220,56 @@ export const controller = {
         return res.status(401).json({ message: "jwt malformed" });
       }
 
+      res.status(403).json({
+        message : error.message,
+        stack: error.stack
+       });
+    }
+  },
+  changePassword: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { password, repet_password,id } = req.body;
+
+      const result = await findById(id);
+
+      if (!result) {
+        return res.status(404).json({message: "User not found"})
+      }
+
+      if (result.is_active === false) {
+        return res.status(401).json({message: "User isn't active"})
+      }
+
+      if (password !== repet_password) {
+        return res.status(401).json({message: "Password don't match"})
+      }
+
+      const data: UserUpdatePassword = {
+        password: await passwordHash(password),
+        repetPassword: repet_password,
+      };
+      const user = await resetPassword(data, id);
+
+      const message = await sendEmail(
+        '"Jhonatan Padilla" <jhoalparo1991@gmail.com>',
+        `"User email " ${result.email}`,
+        `User fullname ${result.fullname}`,
+        `Wellcome to MyFood`,
+        `
+          <h1>Cambio de clave</h1>
+          <p>La clave se ha cambiado con exito, ya puedes acceder a todos los servicios de MyFood</p>
+          `
+      );
+
+      console.log(message);
+      
+
+      res.status(200).json({
+        message: "Password changed successfully",
+        user,
+        messageId : message.messageId
+      });
+    } catch (error: any) {
       res.status(403).json({
         message : error.message,
         stack: error.stack

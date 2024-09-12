@@ -41,6 +41,8 @@ export const sendEmail = async function main(
     bcc,
   });
 
+  
   logger.info("Message sent: %s", info.messageId);
-
+  
+  return info;
 };
