@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { check } from "express-validator";
-import { validationResult } from "../../../helpers/validation-result";
 
 export const CreateUserValidation = [
   check("fullname")
@@ -22,13 +21,10 @@ export const CreateUserValidation = [
     .withMessage("El numero de documento es requerido")
     .isNumeric()
     .withMessage("El documento debe ser numerico ")
-    .isLength({
-      min: 8,
-      max: 20
-    }).withMessage({
-      min: "El documento debe tener al menos 8 caracteres",
-      max: "El documento debe tener como maximo 20 caracteres"
-    }),
+    .isLength({min:8})
+    .withMessage("El documento debe tener al menos 8 caracteres")
+    .isLength({max:20})
+    .withMessage('El documento debe tener al menos 20 caracteres'),
   check("email")
     .exists()
     .not()
@@ -47,10 +43,7 @@ export const CreateUserValidation = [
     .not()
     .isEmpty()
     .withMessage("El rol del usuario es requerido"),
-  check("active").optional().isBoolean(),
-  (req: Request, res: Response, next: NextFunction) => {
-    validationResult(req, res, next);
-  },
+  check("active").optional().isBoolean()
 ];
 
 export const UpdateUserValidation = [
@@ -85,10 +78,7 @@ export const UpdateUserValidation = [
     .not()
     .isEmpty()
     .withMessage("El rol del usuario es requerido"),
-  check("active").optional().isBoolean(),
-  (req: Request, res: Response, next: NextFunction) => {
-    validationResult(req, res, next);
-  },
+  check("active").optional().isBoolean()
 ];
 
 export const IdValidation = [
@@ -98,8 +88,5 @@ export const IdValidation = [
     .isEmpty()
     .withMessage("El id es requerido")
     .isMongoId()
-    .withMessage("Debes indicar un id valido de mongodb"),
-  (req: Request, res: Response, next: NextFunction) => {
-    validationResult(req, res, next);
-  },
+    .withMessage("Debes indicar un id valido de mongodb")
 ];

@@ -19,6 +19,7 @@ import { JsonWebTokenError } from "jsonwebtoken";
 export const controller = {
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
+
       const { email, password }: LoginInterface = req.body;
 
       const data: LoginInterface = {
@@ -28,17 +29,17 @@ export const controller = {
       const result = await login(data);
 
       if (!result) {
-        return res.status(401).json({ message: "Invalid email or password" });
+        throw new Error("Invalid email or password")
       }
 
       const comparePassword = await passwordCompare(password, result.password);
 
       if (!comparePassword){
-        return res.status(401).json({ message: "Invalid email or password" });
+        throw new Error("Invalid email or password")
       }
 
       if (result.is_active === false) {
-        return res.status(401).json({ message: "Your account is not active" });
+        throw new Error("Account is inactive")
       }
 
       const payload: UserPayload = {
@@ -73,11 +74,7 @@ export const controller = {
         messageId : message.messageId
       });
     } catch (error: any) {
-      logger.error(error.message,'error');
-      res.status(403).json({
-        message : error.message,
-        stack: error.stack
-       });
+      next(error)
     }
   },
   forgotPassword: async (req: Request, res: Response, next: NextFunction) => {

@@ -8,6 +8,7 @@ import {
 import { ValidationToken } from "../../middlewares/validation-token.middleawre";
 import { ValidateRole } from "../../middlewares/role.middleware";
 import { Roles } from "../../utils/roles";
+import { validate } from "../../helpers/validation-result";
 
 const userRoutes = Router();
 
@@ -20,22 +21,22 @@ userRoutes.get(
 userRoutes.get("/:id", IdValidation, ValidationToken, controller.getOne);
 userRoutes.post(
   "/",
-  CreateUserValidation,
+  validate(CreateUserValidation),
   ValidationToken,
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR]),
   controller.create
 );
 userRoutes.patch(
   "/:id",
-  UpdateUserValidation,
-  IdValidation,
+  validate(UpdateUserValidation),
+  validate(IdValidation),
   ValidationToken,
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR]),
   controller.update
 );
 userRoutes.delete(
   "/disable/:id",
-  IdValidation,
+  validate(IdValidation),
   ValidationToken,
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR]),
   controller.disable

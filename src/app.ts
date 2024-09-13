@@ -25,6 +25,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1/", router);
 
 // Handle Error
-// app.use(errorHandle);
+app.use(errorHandle);
 
 export default app;
