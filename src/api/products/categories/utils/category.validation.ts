@@ -1,6 +1,4 @@
-import { body, check } from "express-validator";
-import { validationResult } from "../../../../helpers/validation-result";
-import { NextFunction, Request, Response } from "express";
+import {  check } from "express-validator";
 
 export const validation = {
   createCategoryValidation: [
@@ -17,10 +15,7 @@ export const validation = {
       .not()
       .isEmpty()
       .withMessage("Debes ingresar el nombre de la categoria")
-      .isString(),
-    (req: Request, res: Response, next: NextFunction) => {
-      validationResult(req, res, next);
-    },
+      .isString()
   ],
   idValidation: [
     check("id")
@@ -29,9 +24,6 @@ export const validation = {
       .isEmpty()
       .withMessage("El id es requerido")
       .isMongoId()
-      .withMessage("Debes indicar un id valido de mongodb"),
-    (req: Request, res: Response, next: NextFunction) => {
-      return validationResult(req, res, next);
-    },
+      .withMessage("Debes indicar un id valido de mongodb")
   ],
 };

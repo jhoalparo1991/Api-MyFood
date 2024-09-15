@@ -23,6 +23,14 @@ export const errorHandle = (
     statusCode = 404;
     message = `Recurso no encontrado con id: ${error.name}`;
   }
+  else if(error.name === 'PrismaClientValidationError'){
+    statusCode = 400;
+    message = "Error de validación de datos";
+  }
+  else if(error.name === 'PrismaClientKnownRequestError'){
+    statusCode = 500;
+    message = "Error desconocido";
+  }
 
   res.status(statusCode).json({
     statusCode,

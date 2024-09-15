@@ -1,162 +1,140 @@
 import { NextFunction, Request, Response } from "express";
 import { passwordHash } from "../../helpers/password-hash";
-import { UserEditInterface, UserI } from "./utils/user.interface";
-import { disable, edit, findAll, findByDocument, findByDocumentUpdate, findByEmail, findByEmailUpdate, findById, register } from "./service";
-import { logger } from "../../config/winston";
+import { service } from "./service";
+import { UserDto } from "./dto/user.interface";
 
 export const controller = {
-  get: async (req: Request, res: Response, next:NextFunction) => {
+  index: async (req: Request, res: Response, next:NextFunction) => {
     try {
 
-      const page:number = Number(req.query.page) || 1;
-      const limit:number = Number(req.query.limit) || 10;
-
-      const data = await findAll().skip((page -1) * limit).limit(limit).lean();
-      const total = await findAll().countDocuments();
-      const totalPages = Math.ceil(total / limit);
+      const data = await service.findAll();
      
-      res.status(200).json({
-        data,
-        total,
-        totalPages,
-        currentPage: page,
-        limit
+      res.json({
+        status:200,
+        data
       });
     } catch (error: any) {
-      res.status(500).json({
-        message : error.message,
-        stack: error.stack
-       });
+      next(error)
     }
   },
-  getOne: async (req: Request, res: Response, next:NextFunction) => {
+  show: async (req: Request, res: Response, next:NextFunction) => {
     try {
       const id = req.params.id;
 
       const idUserReq = req.user?.id;
 
       if(id !== idUserReq){
-        return res.status(403).json({message: "You don't have permission to access this resource"})
+        throw new Error("You don't have permission to access this resource")
       }
 
-      const data =  await findById(id);
+      const data =  await service.findById(Number(id));
 
       if(!data){
-        return res.status(404).json({message: "User not found"})
+        throw new Error("User not found")
       }
 
-      res.status(200).json({
+      res.json({
+        status:200,
         data,
       });
     } catch (error: any) {
-      res.status(500).json({
-        message : error.message,
-        stack: error.stack
-       });
+      next(error)
     }
   },
   create: async (req: Request, res: Response,next:NextFunction) => {
     try {
-      const { fullname, type_doc, document, email, password, rol, is_active } =
-        req.body;
+      const data =  req.body;
 
-      const passwordHashed = await passwordHash(password);
+      const passwordHashed = await passwordHash(data.password);
 
-      const user: UserI = {
-        fullname,
-        type_doc,
-        document,
-        email,
+      const user: UserDto = {
+        fullname : data.fullname,
+        document : data.document,
+        email : data.email,
         password: passwordHashed,
-        rol,
-        is_active,
+        salePointId : data.sale_point_id,
+        profile : data.profile,
+        isActive :data.is_active,
       };
 
-      if(await findByEmail(email)){
-        return res.status(403).json({message: "Email already exists"})
-
+      if(await service.findByEmail(data.email)){
+        throw new Error("Email already exists")
       }
 
-      if(await findByDocument(document)){
-        return res.status(403).json({message: "Document already exists"})
+      if(await service.findByDocument(data.document)){
+        throw new Error("Document already exists")
       }
 
-      const result = await register(user);
+      const result = await service.create(user);
 
-      res.status(201).json({
-        message: "User created successfully",
+      res.json({
         status: 201,
-        data: result,
+        message: "User created successfully",
+        result,
       });
     } catch (error: any) {
-      res.status(500).json({
-        message : error.message,
-        stack: error.stack
-       });
+      next(error)
     }
   },
-  update: async (req: Request, res: Response, next:NextFunction) => {
+  edit: async (req: Request, res: Response, next:NextFunction) => {
     try {
-      const { fullname, type_doc, document, email, rol, is_active } =
-        req.body;
+      const data =  req.body;
 
       const id = req.params.id;
 
-      const user: UserEditInterface = {
-        fullname,
-        type_doc,
-        document,
-        email,
-        rol,
-        is_active,
+      
+      const user: UserDto = {
+        fullname : data.fullname,
+        document : data.document,
+        email : data.email,
+        salePointId : data.sale_point_id,
+        profile : data.profile,
+        isActive :data.is_active,
       };
 
-      if(await findByEmailUpdate(email, id)){
-        return res.status(403).json({message: "Email already exists"})
+      if(data.email){
+        if(await service.findByEmailUpdate(Number(id),data.email)){
+          return res.status(403).json({message: "Email already exists"})
+        }
       }
 
-      if(await findByDocumentUpdate(document,id)){
-        return res.status(403).json({message: "Document already exists"})
+      if(data.document){
+        if(await service.findByDocumentUpdate(Number(id),data.document)){
+          return res.status(403).json({message: "Document already exists"})
+        }
       }
 
-      const result =  await edit(user, id);
+      const result =  await service.update(Number(id),user);
 
-      res.status(200).json({
-        message: "User updated successfully",
+      res.json({
         status: 200,
-        data: result,
+        message: "User updated successfully",
+        result,
       });
     } catch (error: any) {
-      res.status(500).json({
-        message : error.message,
-        stack: error.stack
-       });
+      next(error)
     }
   },
   disable: async (req: Request, res: Response, next:NextFunction) => {
     try {
       const id = req.params.id;
 
-      const exists = await findById(id);
+      const exists = await service.findById(Number(id));
 
       if(!exists){
-        return res.status(404).json({message: "User not found"})
+        throw new Error('User not found')
       }
 
-      const result =  await disable(id);
+      const result =  await service.disable(Number(id));
 
 
       res.status(200).json({
         status: 200,
         message: "User disable successfully",
-        data: result,
+        result,
       });
     } catch (error: any) {
-      res.status(500).json({
-        message : error.message,
-        stack: error.stack
-       });
-
+      next(error)
     }
   },
 };

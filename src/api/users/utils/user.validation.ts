@@ -1,92 +1,100 @@
 import { NextFunction, Request, Response } from "express";
 import { check } from "express-validator";
 
-export const CreateUserValidation = [
-  check("fullname")
+export const userValidations = {
+  register: [
+    check("fullname")
     .exists()
     .not()
     .isEmpty()
-    .withMessage("El nombre es requerido")
+    .withMessage("Fullname required")
     .isString(),
-  check("type_doc")
+    check("document")
     .exists()
     .not()
     .isEmpty()
-    .withMessage("El tipo de documento es requerido")
-    .isString(),
-  check("document")
-    .exists()
-    .not()
-    .isEmpty()
-    .withMessage("El numero de documento es requerido")
-    .isNumeric()
-    .withMessage("El documento debe ser numerico ")
+    .withMessage("Document required")
+    .isNumeric().withMessage('The document must be numeric')
     .isLength({min:8})
-    .withMessage("El documento debe tener al menos 8 caracteres")
+    .withMessage("The document must be at least 8 characters")
     .isLength({max:20})
-    .withMessage('El documento debe tener al menos 20 caracteres'),
-  check("email")
+    .withMessage('The document must be at least 20 characters'),
+    check("email")
     .exists()
     .not()
     .isEmpty()
-    .withMessage("El Email es requerido")
+    .withMessage("Email required")
     .isEmail()
-    .withMessage("Debes ingresar un email valido"),
+    .withMessage("Invalid email"), 
   check("password")
     .exists()
     .not()
     .isEmpty()
-    .withMessage("El password es requerido")
+    .withMessage("Password is required")
     .isLength({ min: 5, max: 20 }),
-  check("rol")
+    check("sale_point_id")
     .exists()
     .not()
     .isEmpty()
-    .withMessage("El rol del usuario es requerido"),
-  check("active").optional().isBoolean()
-];
-
-export const UpdateUserValidation = [
-  check("fullname")
+    .withMessage("Salepoint is required")
+    .isNumeric(),
+  check("profile")
+    .exists()
+    .not()
+    .isEmpty()
+    .withMessage("Profile is required"),
+  check("is_active").optional().isBoolean()
+  ],
+  update :[
+    check('id').exists().withMessage('The id must be numeric').isNumeric().withMessage('The id must be numeric'),
+    check("fullname")
     .optional()
     .not()
     .isEmpty()
-    .withMessage("El nombre es requerido")
+    .withMessage("Fullname required")
     .isString(),
-  check("type_doc")
+    check("document")
     .optional()
     .not()
     .isEmpty()
-    .withMessage("El tipo de documento es requerido")
-    .isString(),
-  check("document")
+    .withMessage("Document required")
+    .isNumeric().withMessage('The document must be numeric')
+    .isLength({min:8})
+    .withMessage("The document must be at least 8 characters")
+    .isLength({max:20})
+    .withMessage('The document must be at least 20 characters'),
+    check("email")
     .optional()
     .not()
     .isEmpty()
-    .withMessage("El numero de documento es requerido")
-    .isNumeric()
-    .withMessage("El documento debe ser numerico "),
-  check("email")
-    .optional()
-    .not()
-    .isEmpty()
-    .withMessage("El Email es requerido")
+    .withMessage("Email required")
     .isEmail()
-    .withMessage("Debes ingresar un email valido"),
-  check("rol")
+    .withMessage("Invalid email"), 
+  check("password")
     .optional()
     .not()
     .isEmpty()
-    .withMessage("El rol del usuario es requerido"),
-  check("active").optional().isBoolean()
-];
-
-export const IdValidation = [
-  check("id")
+    .withMessage("Password is required")
+    .isLength({ min: 5, max: 20 }),
+    check("sale_point_id")
+    .optional()
+    .not()
+    .isEmpty()
+    .withMessage("Salepoint is required")
+    .isNumeric(),
+  check("profile")
+    .optional()
+    .not()
+    .isEmpty()
+    .withMessage("Profile is required"),
+  check("is_active").optional().isBoolean()
+  ],
+  id : [
+    check("id")
     .exists()
     .not()
     .isEmpty()
-    .withMessage("El id es requerido")
-    .isMongoId()
-    .withMessage("Debes indicar un id valido de mongodb")
-];
+    .withMessage("Id is required")
+    .isNumeric().withMessage('The id must be numeric')
+  ]
+}

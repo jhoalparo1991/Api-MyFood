@@ -1,0 +1,215 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Enterprise {
+  id          Int         @id @default(autoincrement())
+  tradeName   String      @db.VarChar(50)
+  companyName String      @db.VarChar(50)
+  nif         String      @unique @db.VarChar(15)
+  address     String?     @db.VarChar(50)
+  country     String?     @db.VarChar(50)
+  city        String?     @db.VarChar(50)
+  postalCode  String?     @db.VarChar(10)
+  phone       String?     @db.VarChar(10)
+  cellphone   String?     @db.VarChar(10)
+  email       String?     @db.VarChar(120)
+  website     String?     @db.VarChar(120)
+  salePoint   SalePoint[]
+}
+
+model SalePoint {
+  id           Int                  @id @default(autoincrement())
+  enterprise   Enterprise           @relation(fields: [enterpriseId], references: [id])
+  enterpriseId Int
+  name         String               @db.VarChar(50)
+  nif          String               @db.VarChar(15)
+  address      String?              @db.VarChar(50)
+  country      String?              @db.VarChar(50)
+  city         String?              @db.VarChar(50)
+  postalCode   String?              @db.VarChar(10)
+  phone        String?              @db.VarChar(10)
+  cellphone    String?              @db.VarChar(10)
+  userAdmin   String?              @db.VarChar(50)
+  user         User[]
+  product      ProductOnSalePoint[]
+}
+
+enum Profiles {
+  SUPER_ADMIN
+  SUPPORT
+  ADMIN
+  SUPERVISOR
+  COORDINADOR
+  CAJERO
+  MESERO
+  GUEST
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  fullname    String    @db.VarChar(50)
+  document    String    @unique @db.VarChar(15)
+  email       String    @unique @db.VarChar(100)
+  password    String    @db.VarChar(255)
+  salePoint   SalePoint @relation(fields: [salePointId], references: [id])
+  salePointId Int
+  profile     Profiles @default(GUEST)
+  isActive Boolean @db.Boolean() @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?   @db.VarChar(255)
+  isActive    Boolean   @default(true) @db.Boolean()
+  products    Product[]
+}
+
+model Tax {
+  id          Int            @id @default(autoincrement())
+  code        String         @unique @db.Char(3)
+  name        String         @unique
+  description String?        @db.VarChar(255)
+  current     Decimal        @default(0.00) @db.Decimal(10, 2)
+  isActive    Boolean        @default(true) @db.Boolean()
+  product     ProductOnTax[]
+}
+
+enum ProcessAreaType {
+  PRINTER
+  SCREEN
+}
+
+model ProcessArea {
+  id       Int             @id @default(autoincrement())
+  name     String          @unique
+  location String          @db.VarChar(100)
+  type     ProcessAreaType
+}
+
+enum ProductType {
+  PRODUCT
+  SERVICE
+}
+
+model Product {
+  id           Int                  @id @default(autoincrement())
+  reference    String               @unique @default(uuid()) @db.VarChar(20)
+  category     Category             @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  type         ProductType          @default(PRODUCT)
+  manufactured Boolean              @default(true)
+  name         String               @db.VarChar(50)
+  description  String?              @default("") @db.VarChar(255)
+  cost         Decimal?             @default(0.00) @db.Decimal(10, 2)
+  isActive     Boolean?             @default(true) @db.Boolean()
+  visiblePv    Boolean?             @default(false) @db.Boolean()
+  imageUrl     String?              @db.Text
+  processArea  String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  tax          ProductOnTax[]
+  pointSale    ProductOnSalePoint[]
+}
+
+model ProductOnSalePoint {
+  id          Int       @default(autoincrement())
+  product     Product   @relation(fields: [productId], references: [id])
+  productId   Int
+  salePoint   SalePoint @relation(fields: [salePointId], references: [id])
+  salePointId Int
+  price1      Decimal   @default(0.00) @db.Decimal(10, 2)
+  price2      Decimal   @default(0.00) @db.Decimal(10, 2)
+  price3      Decimal   @default(0.00) @db.Decimal(10, 2)
+  price4      Decimal   @default(0.00) @db.Decimal(10, 2)
+  price5      Decimal   @default(0.00) @db.Decimal(10, 2)
+  isActive    Boolean   @default(true) @db.Boolean()
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@id([productId, salePointId])
+}
+
+model ProductOnTax {
+  id        Int      @default(autoincrement()) @db.Integer
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  tax       Tax      @relation(fields: [taxId], references: [id])
+  taxId     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([productId, taxId])
+}
+
+enum MeasuredUnitType {
+  UNIT
+  WEIGHT
+  VOLUME
+  AREA
+  LENGTH
+}
+
+model MeasuredUnit {
+  id   Int              @id @default(autoincrement())
+  code String           @unique @db.Char(2)
+  name String           @unique
+  type MeasuredUnitType @default(UNIT)
+}
+
+model TypeDocument {
+  id        Int        @id @default(autoincrement())
+  code      String     @unique @db.Char(5)
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  customer  Customer[]
+}
+
+model TypePerson {
+  id       Int        @id @default(autoincrement())
+  code     String     @unique @db.Char(5)
+  name     String     @unique
+  customer Customer[]
+}
+
+model BillingRegime {
+  id       Int        @id @default(autoincrement())
+  code     String     @unique @db.Char(5)
+  name     String     @unique
+  customer Customer[]
+}
+
+model Customer {
+  id                Int           @id @default(autoincrement()) @db.Integer
+  typeDocument      TypeDocument  @relation(fields: [typeDocumentId], references: [id])
+  typeDocumentId    Int
+  document          String        @unique @db.VarChar(20)
+  verificationDigit Int?          @default(0) @db.Integer
+  fullname          String        @unique
+  email             String        @unique
+  phone             String?
+  address           String?
+  typePerson        TypePerson    @relation(fields: [typePersonId], references: [id])
+  typePersonId      Int
+  billinRegime      BillingRegime @relation(fields: [billinRegimeId], references: [id])
+  billinRegimeId    Int
+  isActive          Boolean?      @default(true) @db.Boolean()
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}

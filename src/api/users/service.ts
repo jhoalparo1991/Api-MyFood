@@ -1,52 +1,63 @@
-import { UserEditInterface, UserI } from "./utils/user.interface";
-import { userModel } from "./model";
+import { PrismaClient } from "@prisma/client";
+import { UserDto } from "./dto/user.interface";
 
-export const findAll = () => {
-  return userModel.find({
-    is_active: true,
-  }).select('-password');
+const prisma: PrismaClient = new PrismaClient();
+
+export const service = {
+  findAll: async () => {
+    return await prisma.user.findMany();
+  },
+  findById: async (id: number) => {
+    return await prisma.user.findFirst({ where: { id } });
+  },
+  findByEmail: async (email: string) => {
+    return await prisma.user.findFirst({ where: { email } });
+  },
+  findByDocument: async (document: string) => {
+    return await prisma.user.findFirst({ where: { document } });
+  },
+  findByEmailUpdate: async (id: number, email: string) => {
+    return await prisma.user.findFirst({
+      where: {
+        email,
+        AND: {
+          id: {
+            not: {
+              equals: id,
+            },
+          },
+        },
+      },
+    });
+  },
+  findByDocumentUpdate: async (id: number, document: string) => {
+    return await prisma.user.findFirst({
+      where: {
+        document,
+        AND: {
+          id: {
+            not: {
+              equals: id,
+            },
+          },
+        },
+      },
+    });
+  },
+  create : async(data:UserDto)=>{
+    return await prisma.user.create({data})
+  },
+  update : async(id:number,data:UserDto)=>{
+    return await prisma.user.update({where:{id},data})
+  },
+  disable:async(id:number)=>{
+    return await prisma.user.update({where:{id},data:{
+      isActive:false
+    }})
+  },
+  countUsers : async()=>{
+    return await prisma.user.count()
+  } 
+
 };
 
-export const register = (data: UserI) => {
-  return userModel.create(data);
-};
-
-export const edit = (data: UserEditInterface, id: string) => {
-  return userModel.findOneAndUpdate({ _id: id }, data, {
-    returnDocument: "after",
-  });
-};
-
-export const disable = (id: string) => {
-  return userModel.findOneAndUpdate(
-    { _id: id },
-    { is_active: false },
-    { returnDocument: "after" }
-  );
-};
-
-export const findById = (id: string) => {
-  return userModel.findById({ _id:id }).select('-password');
-};
-
-
-export const findByEmail = (email: string) => {
-  return userModel.findOne({email});
-};
-
-export const findByDocument = (document: string) => {
-  return userModel.findOne({document});
-};
-
-
-export const findByEmailUpdate = (email: string,id:string) => {
-  return userModel.findOne({email:email, _id:{$ne:id}});
-};
-
-export const findByDocumentUpdate = (document: string,id:string) => {
-  return userModel.findOne({document:document, _id:{$ne:id}});
-};
-
-export const countUsers = ()=>{
-  return userModel.countDocuments();
-}

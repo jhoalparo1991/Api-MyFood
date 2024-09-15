@@ -1,14 +1,11 @@
 import { Router } from "express";
 import { controller } from "./controller";
-import {
-  CreateUserValidation,
-  IdValidation,
-  UpdateUserValidation,
-} from "./utils/user.validation";
+import { userValidations } from "./utils/user.validation";
 import { ValidationToken } from "../../middlewares/validation-token.middleawre";
 import { ValidateRole } from "../../middlewares/role.middleware";
 import { Roles } from "../../utils/roles";
 import { validate } from "../../helpers/validation-result";
+import { validateRunner } from "../../helpers/express-validator";
 
 const userRoutes = Router();
 
@@ -16,27 +13,31 @@ userRoutes.get(
   "/",
   ValidationToken,
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR]),
-  controller.get
+  controller.index
 );
-userRoutes.get("/:id", IdValidation, ValidationToken, controller.getOne);
+userRoutes.get(
+  "/:id",
+  validateRunner(userValidations.id),
+  ValidationToken,
+  controller.show
+);
 userRoutes.post(
   "/",
-  validate(CreateUserValidation),
+  validateRunner(userValidations.register),
   ValidationToken,
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR]),
   controller.create
 );
 userRoutes.patch(
   "/:id",
-  validate(UpdateUserValidation),
-  validate(IdValidation),
+  validateRunner(userValidations.update),
   ValidationToken,
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR]),
-  controller.update
+  controller.edit
 );
 userRoutes.delete(
   "/disable/:id",
-  validate(IdValidation),
+  validate(userValidations.id),
   ValidationToken,
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR]),
   controller.disable
