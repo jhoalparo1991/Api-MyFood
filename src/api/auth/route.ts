@@ -1,33 +1,29 @@
 import { Router } from "express";
 import { controller } from "./controller";
 
-import {
-  changePasswordValidation,
-  EmailValidation,
-  IdValidation,
-  LoginValidation,
-  ResetPasswordValidation,
-} from "./utils/auth.validation";
-import { ValidateRole } from "../../middlewares/role.middleware";
+import { authValidation } from "./utils/auth.validation";
 import { ValidationToken } from "../../middlewares/validation-token.middleawre";
-import { body } from "express-validator";
-import { validate } from "../../helpers/validation-result";
+import { validateRunner } from "../../helpers/express-validator";
 const authRoutes = Router();
 
 authRoutes.post(
   "/",
-  validate(LoginValidation),
+  validateRunner(authValidation.loginValidation),
   controller.login
 );
-authRoutes.post("/forgot-password", validate(EmailValidation), controller.forgotPassword);
+authRoutes.post(
+  "/forgot-password",
+  validateRunner(authValidation.emailValidation),
+  controller.forgotPassword
+);
 authRoutes.patch(
   "/reset-password/:token/:id",
-  validate(ResetPasswordValidation),
+  validateRunner(authValidation.resetPasswordValidation),
   controller.resetPassword
 );
 authRoutes.patch(
   "/change-password",
-  validate(changePasswordValidation),
+  validateRunner(authValidation.changePasswordValidation),
   ValidationToken,
   controller.changePassword
 );
