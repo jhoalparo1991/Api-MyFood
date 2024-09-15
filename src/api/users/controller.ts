@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { passwordHash } from "../../helpers/password-hash";
 import { service } from "./service";
-import { UserDto } from "./dto/user.interface";
+import { UserDto, UserDtoEdit } from "./dto/user.interface";
+import { services as serviceSalePoint } from "../enterprises/sale_point/service";
+import { Roles } from "../../utils/roles";
 
 export const controller = {
   index: async (req: Request, res: Response, next:NextFunction) => {
@@ -52,10 +54,32 @@ export const controller = {
         document : data.document,
         email : data.email,
         password: passwordHashed,
-        salePointId : data.sale_point_id,
+        sale_point_id : data.sale_point_id,
         profile : data.profile,
-        isActive :data.is_active,
+        is_active :data.is_active,
       };
+
+      const roles = [
+        'SUPER_ADMIN',
+        'SUPPORT',
+        'ADMIN',
+        'SUPERVISOR',
+        'COORDINADOR',
+        'CAJERO',
+        'MESERO',
+        'GUEST',
+      ]
+      if(!roles.includes(data.profile)){
+        throw new Error("Profile not found")
+      }
+
+      const existSalePoint = await serviceSalePoint.findById(Number(user.sale_point_id));
+
+      
+
+      if(!existSalePoint){
+        throw new Error("Sale point not found")
+      }
 
       if(await service.findByEmail(data.email)){
         throw new Error("Email already exists")
@@ -83,13 +107,14 @@ export const controller = {
       const id = req.params.id;
 
       
-      const user: UserDto = {
+      const user: UserDtoEdit = {
+        id : Number(id),
         fullname : data.fullname,
         document : data.document,
         email : data.email,
-        salePointId : data.sale_point_id,
+        sale_point_id : data.sale_point_id,
         profile : data.profile,
-        isActive :data.is_active,
+        is_active :data.is_active,
       };
 
       if(data.email){
@@ -104,7 +129,7 @@ export const controller = {
         }
       }
 
-      const result =  await service.update(Number(id),user);
+      const result =  await service.update(data.id,user);
 
       res.json({
         status: 200,

@@ -1,33 +1,54 @@
-import category from './model';
-import { ICreateCategory } from './utils/category.interface';
+import { CategoryDto } from "./dto/category.interface";
+import { PrismaClient } from "@prisma/client";
 
-export const getAll = ()=>{
-    return category.find();
-}
+const prisma: PrismaClient = new PrismaClient();
 
-export const getById = (id:string)=>{
-    return category.findById({_id:id}).exec();
-}
-
-export const getBySlug = (slug:string)=>{
-    return category.findOne({slug}).exec();
-}
-
-export const countCategories = ()=>{
-    return category.find().countDocuments();
-}
-
-export const createCategory = (data:ICreateCategory)=>{
-    return category.create(data);
-}
-
-export const updateCategory = (data:ICreateCategory, id:string)=>{
-    return category.findByIdAndUpdate({_id:id},data,{
-        returnDocument: 'after'
+export const service = {
+  getAll: async () => {
+    return await prisma.category.findMany({
+      include: {
+        products: {
+          select: {
+            id: true,
+            name: true,
+            reference: true,
+            type: true,
+          },
+        },
+      },
     });
-}
+  },
+  getById: async (id: number) => {
+    return await prisma.category.findFirst({
+      where: { id },
+      include: {
+        products: {
+          select: {
+            id: true,
+            name: true,
+            reference: true,
+            type: true,
+          },
+        },
+      },
+    });
+  },
 
-export const deleteCategory = (id:string)=>{
-    return category.findByIdAndUpdate({_id:id},{is_active:false, visible_pv:false});
-}
-
+  countCategories: async () => {
+    return await prisma.category.count();
+  },
+  create: async (data: CategoryDto) => {
+    return await prisma.category.create({ data });
+  },
+  update: async (data: CategoryDto, id: number) => {
+    return await prisma.category.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  },
+  delete: async (id: number) => {
+    return await prisma.category.delete({ where: { id } });
+  },
+};

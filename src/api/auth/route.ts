@@ -27,6 +27,6 @@ authRoutes.patch(
   ValidationToken,
   controller.changePassword
 );
-authRoutes.get("/verify-token/:token", controller.verify);
+authRoutes.get("/verify-token", ValidationToken, controller.verify);
 
 export default authRoutes;

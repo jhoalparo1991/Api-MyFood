@@ -4,7 +4,6 @@ import { PrismaClient } from "@prisma/client";
 const prisma: PrismaClient = new PrismaClient();
 
 export const service = {
-  
   signin: (email: string) => {
     return prisma.user.findFirst({ where: { email } });
   },
@@ -19,4 +18,5 @@ export const service = {
       },
     });
   },
+  
 };

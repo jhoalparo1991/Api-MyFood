@@ -171,7 +171,10 @@ export const controller = {
   },
   verify: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const  {token}  = req.params;
+
+      const  cookies  = req.headers.cookie;
+      
+      const token = cookies?.split("=")[1];
 
       if (!token) {
         throw new Error('Token is required')

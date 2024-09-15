@@ -28,6 +28,11 @@ userRoutes.post(
   ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR,Roles.SUPERVISOR]),
   controller.create
 );
+userRoutes.post(
+  "/test",
+  validateRunner(userValidations.register),
+  controller.create
+);
 userRoutes.patch(
   "/:id",
   validateRunner(userValidations.update),

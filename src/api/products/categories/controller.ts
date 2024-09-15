@@ -1,67 +1,37 @@
 import { NextFunction, Request, Response } from "express";
-import { countCategories, createCategory, deleteCategory, getAll, getById, getBySlug, updateCategory } from "./service";
-import { ICreateCategory } from "./utils/category.interface";
+import { service} from "./service";
+import { CategoryDto } from "./dto/category.interface";
+
 export const controller = {
-    get: async(req:Request, res:Response, next:NextFunction) => {
+    index: async(req:Request, res:Response, next:NextFunction) => {
         try {
 
-
-            const page:number = Number(req.query.page) || 1;
-            const limit:number = Number(req.query.limit) || 10;
-
-            const categories = await getAll().skip((page -1) * limit).limit(limit).lean()
-
-            // Get total categories
-            const countDocuments = await countCategories();
-
-            // Totalpages
-            const totalPages = Math.ceil(countDocuments / limit);
+            const result = await service.getAll();
 
             // Response
-            res.status(200).json({
-                data : categories,
-                total: countDocuments,
-                totalPages: totalPages,
-                currentPage: page,
-                limit
+            res.json({
+                status:200,
+                result
             })
         } catch (error:any) {
             next(error);
         }
     },
-    findById: async(req:Request, res:Response, next:NextFunction) => {
+    show: async(req:Request, res:Response, next:NextFunction) => {
         try {
 
             const {id} = req.params;
 
-            const category = await getById(id);
+            const result = await service.getById(Number(id));
 
-            if(!category){
+            if(!result){
                 throw new Error('Category not found');
             }
 
             // Response
-            res.status(200).json({
-                data : category,
-            })
-        } catch (error:any) {
-            next(error);
-        }
-    },
-    findBySlug: async(req:Request, res:Response, next:NextFunction) => {
-        try {
-
-            const {slug} = req.params;
-
-            const category = await getBySlug(slug);
-
-            if(!category){
-                throw new Error('Category not found');
-            }
-
-            // Response
-            res.status(200).json({
-                data : category,
+            res.json({
+                status : 200,
+                result
             })
         } catch (error:any) {
             next(error);
@@ -73,20 +43,20 @@ export const controller = {
 
             const { name, description, is_active, visible_pv } = req.body;
 
-            const data: ICreateCategory = {
+            const data: CategoryDto = {
                 name,description,is_active,visible_pv
             };
 
-            const result = await createCategory(data);
+            const result = await service.create(data);
 
             if(!result){
                 throw new Error('Category not created');
             }
-                       
-            // Response
-            res.status(201).json({
+
+            res.json({
+                staus:201,
                 message: "category created successfully",
-                data : result
+                result
             })
         } catch (error:any) {
             next(error);
@@ -94,24 +64,23 @@ export const controller = {
     },
     update: async(req:Request, res:Response, next:NextFunction) => {
         try {
-
-
             const { name, description, is_active, visible_pv } = req.body;
             const { id } = req.params;
-            const data: ICreateCategory = {
+            const data: CategoryDto = {
                 name,description,is_active,visible_pv
             };
 
-            const result = await updateCategory(data, id);
+            const result = await service.update(data, Number(id));
 
             if(!result){
                 throw new Error('Category not updated');
             }
                        
             // Response
-            res.status(200).json({
+            res.json({
+                status:200,
                 message: "category updated successfully",
-                data : result
+                result
             })
         } catch (error:any) {
             next(error);
@@ -122,15 +91,16 @@ export const controller = {
 
             const { id } = req.params;
 
-            const exist = await getById(id)
+            const exist = await service.getById(Number(id))
             if(!exist){
                 throw new Error('Category not found')
             }
 
-            await deleteCategory(id);
+            await service.delete(Number(id));
 
             // Response
-            res.status(200).json({
+            res.json({
+                status:200,
                 message: "category deleted successfully",
             })
         } catch (error:any) {
