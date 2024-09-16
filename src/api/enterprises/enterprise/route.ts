@@ -30,6 +30,11 @@ enterpriseRouter.post(
   ValidateRole([Roles.SUPER_ADMIN, Roles.SUPPORT]),
   controller.create
 );
+enterpriseRouter.post(
+  "/test",
+  validate(enterpriseCreateValidation),
+  controller.create
+);
 enterpriseRouter.patch(
   "/:id",
   validate(enterpriseUpdateValidation),

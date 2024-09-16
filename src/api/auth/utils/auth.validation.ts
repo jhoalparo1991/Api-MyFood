@@ -1,8 +1,7 @@
-import { NextFunction, Request, Response } from "express";
 import { check } from "express-validator";
 
 export const authValidation = {
-  loginValidation : [
+  loginValidation: [
     check("email")
       .exists()
       .not()
@@ -17,7 +16,7 @@ export const authValidation = {
       .withMessage("Password is required")
       .isLength({ min: 5, max: 20 }),
   ],
-  emailValidation : [
+  emailValidation: [
     check("email")
       .exists()
       .not()
@@ -25,8 +24,8 @@ export const authValidation = {
       .withMessage("Email is required")
       .isEmail()
       .withMessage("Invalid email"),
-  ],  
-  idValidation : [
+  ],
+  idValidation: [
     check("id")
       .exists()
       .not()
@@ -35,7 +34,7 @@ export const authValidation = {
       .isNumeric()
       .withMessage("Id is numeric"),
   ],
-  resetPasswordValidation : [
+  resetPasswordValidation: [
     check("password")
       .exists()
       .not()
@@ -55,8 +54,8 @@ export const authValidation = {
       .withMessage("Id is required")
       .isNumeric()
       .withMessage("Id must be numeric"),
-  ],  
-  changePasswordValidation : [
+  ],
+  changePasswordValidation: [
     check("password")
       .exists()
       .not()
@@ -76,6 +75,5 @@ export const authValidation = {
       .withMessage("Id is required")
       .isNumeric()
       .withMessage("Id must be numeric"),
-  ]
-  
-}
+  ],
+};

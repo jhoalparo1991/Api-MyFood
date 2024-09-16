@@ -27,6 +27,11 @@ salePointRouter.post(
   ValidateRole([Roles.SUPER_ADMIN, Roles.SUPPORT]),
   controller.create
 );
+salePointRouter.post(
+  "/test",
+  validateRunner(salePointValidation.create),
+  controller.create
+);
 salePointRouter.patch(
   "/:id",
   validateRunner(salePointValidation.update),
