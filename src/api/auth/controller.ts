@@ -48,11 +48,7 @@ export const controller = {
 
       const { token } = createToken(payload);
 
-      res.cookie("token", token, {
-        httpOnly: development.NODE_ENV !== "development",
-        secure: true,
-        sameSite: "none",
-      });
+      res.cookie("token", token);
 
      const message =  await sendEmail(
         '"Jhonatan Padilla" <jhoalparo1991@gmail.com>',
@@ -172,13 +168,17 @@ export const controller = {
   verify: async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-      const  cookies  = req.headers.cookie;
+      const  token  = req.headers.authorization?.split(" ")[1]
       
-      const token = cookies?.split("=")[1];
+      // const token = cookies?.split("=")[1];
 
       if (!token) {
+
         throw new Error('Token is required')
       }
+
+      console.log(token);
+      
 
       const validToken = verifyToken(
         token,
