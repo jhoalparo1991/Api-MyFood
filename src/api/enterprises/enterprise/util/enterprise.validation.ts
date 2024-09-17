@@ -1,7 +1,7 @@
 import { body, check } from "express-validator";
 
 export const enterpriseCreateValidation = [
-  body("trade_name")
+  body("tradeName")
     .exists()
     .notEmpty()
     .withMessage("El nombre de la empresa es requerido")
@@ -15,7 +15,7 @@ export const enterpriseCreateValidation = [
     .withMessage(
       "El nombre de la empresa debe tener como máximo 50 caracteres"
     ),
-  body("company_name")
+  body("companyName")
     .exists()
     .notEmpty()
     .withMessage("La razon social es requerida")
@@ -42,7 +42,7 @@ export const enterpriseCreateValidation = [
 ];
 
 export const enterpriseUpdateValidation = [
-  check("trade_name")
+  check("tradeName")
     .optional()
     .isEmpty()
     .withMessage("El nombre de la empresa es requerido")
@@ -56,7 +56,7 @@ export const enterpriseUpdateValidation = [
     .withMessage(
       "El nombre de la empresa debe tener como máximo 50 caracteres"
     ),
-  check("company_name")
+  check("companyName")
     .optional()
     .isEmpty()
     .withMessage("La razon social es requerida")
@@ -70,6 +70,7 @@ export const enterpriseUpdateValidation = [
     .withMessage("La razon social debe tener como máximo 50 caracteres"),
   check("nif")
     .optional()
+    .not()
     .isEmpty()
     .withMessage("El NIF es requerido")
     .isLength({
