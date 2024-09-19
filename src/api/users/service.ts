@@ -3,7 +3,6 @@ import { UserDto, UserDtoEdit } from "./dto/user.interface";
 
 const prisma: PrismaClient = new PrismaClient();
 
-
 export const service = {
   findAll: async () => {
     return await prisma.user.findMany();
@@ -45,30 +44,40 @@ export const service = {
       },
     });
   },
-  create : async(data:UserDto)=>{
+  create: async (data: UserDto) => {
     return await prisma.user.create({
-      data:{
-        fullname : data.fullname,
-        document : data.document,
-        email : data.email,
+      data: {
+        fullname: data.fullname,
+        document: data.document,
+        email: data.email,
         password: data.password,
-        salePointId : data.sale_point_id,
-        profile : data.profile,
-        isActive : data.is_active
-      }
-    })
+        salePointId: data.sale_point_id,
+        profile: data.profile,
+        isActive: data.is_active,
+      },
+    });
   },
-  update : async(id:number,data:UserDtoEdit)=>{
-    return await prisma.user.update({where:{id},data})
+  update: async (id: number, data: UserDtoEdit) => {
+    return await prisma.user.update({
+      where: { id },
+      data: {
+        fullname: data.fullname,
+        document: data.document,
+        email: data.email,
+        salePointId: data.sale_point_id,
+        profile: data.profile,
+      },
+    });
   },
-  disable:async(id:number)=>{
-    return await prisma.user.update({where:{id},data:{
-      isActive:false
-    }})
+  disable: async (id: number) => {
+    return await prisma.user.update({
+      where: { id },
+      data: {
+        isActive: false,
+      },
+    });
   },
-  countUsers : async()=>{
-    return await prisma.user.count()
-  } 
-
+  countUsers: async () => {
+    return await prisma.user.count();
+  },
 };
-

@@ -12,7 +12,12 @@ const userRoutes = Router();
 userRoutes.get(
   "/",
   ValidationToken,
-  ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR, Roles.SUPERVISOR]),
+  ValidateRole([
+    Roles.SUPER_ADMIN,
+    Roles.ADMIN,
+    Roles.COORDINADOR,
+    Roles.SUPERVISOR,
+  ]),
   controller.index
 );
 userRoutes.get(
@@ -25,7 +30,12 @@ userRoutes.post(
   "/",
   validateRunner(userValidations.register),
   ValidationToken,
-  ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR,Roles.SUPERVISOR]),
+  ValidateRole([
+    Roles.SUPER_ADMIN,
+    Roles.ADMIN,
+    Roles.COORDINADOR,
+    Roles.SUPERVISOR,
+  ]),
   controller.create
 );
 userRoutes.post(
@@ -35,16 +45,27 @@ userRoutes.post(
 );
 userRoutes.patch(
   "/:id",
+  validateRunner(userValidations.id),
   validateRunner(userValidations.update),
   ValidationToken,
-  ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR,Roles.SUPERVISOR]),
+  ValidateRole([
+    Roles.SUPER_ADMIN,
+    Roles.ADMIN,
+    Roles.COORDINADOR,
+    Roles.SUPERVISOR,
+  ]),
   controller.edit
 );
 userRoutes.delete(
   "/disable/:id",
   validate(userValidations.id),
   ValidationToken,
-  ValidateRole([Roles.SUPER_ADMIN, Roles.ADMIN, Roles.COORDINADOR,Roles.SUPERVISOR]),
+  ValidateRole([
+    Roles.SUPER_ADMIN,
+    Roles.ADMIN,
+    Roles.COORDINADOR,
+    Roles.SUPERVISOR,
+  ]),
   controller.disable
 );
 

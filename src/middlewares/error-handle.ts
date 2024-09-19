@@ -14,7 +14,7 @@ export const errorHandle = (
 
   let message = error.message;
 
-  if (error.name === "ValidationError" ) {
+  if (error.name === "ValidationError") {
     statusCode = 400;
     message = Object.values(error)
       .map((val) => val.message)
@@ -22,12 +22,10 @@ export const errorHandle = (
   } else if (error.name === "CastError") {
     statusCode = 404;
     message = `Recurso no encontrado con id: ${error.name}`;
-  }
-  else if(error.name === 'PrismaClientValidationError'){
+  } else if (error.name === "PrismaClientValidationError") {
     statusCode = 400;
     message = "Error de validación de datos";
-  }
-  else if(error.name === 'PrismaClientKnownRequestError'){
+  } else if (error.name === "PrismaClientKnownRequestError") {
     statusCode = 500;
     message = "Error desconocido";
   }

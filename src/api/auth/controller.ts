@@ -17,7 +17,6 @@ import { development } from "../../config/development";
 export const controller = {
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
-
       const { email, password }: LoginInterface = req.body;
 
       const data: LoginInterface = {
@@ -27,17 +26,17 @@ export const controller = {
       const result = await service.signin(email);
 
       if (!result) {
-        throw new Error("Invalid email or password")
+        throw new Error("Invalid email or password");
       }
 
       const comparePassword = await passwordCompare(password, result.password);
 
-      if (!comparePassword){
-        throw new Error("Invalid email or password")
+      if (!comparePassword) {
+        throw new Error("Invalid email or password");
       }
 
       if (result.isActive === false) {
-        throw new Error("Account is inactive")
+        throw new Error("Account is inactive");
       }
 
       const payload: UserPayload = {
@@ -50,7 +49,7 @@ export const controller = {
 
       res.cookie("token", token);
 
-     const message =  await sendEmail(
+      const message = await sendEmail(
         '"Jhonatan Padilla" <jhoalparo1991@gmail.com>',
         `"User login" ${result.email}`,
         `User loged as ${result.fullname}`,
@@ -61,15 +60,15 @@ export const controller = {
       req.token = token;
 
       res.json({
-        status:200,
+        status: 200,
         token,
         id: result.id,
         email: result.email,
         rol: result.profile,
-        messageId : message.messageId
+        messageId: message.messageId,
       });
     } catch (error: any) {
-      next(error)
+      next(error);
     }
   },
   forgotPassword: async (req: Request, res: Response, next: NextFunction) => {
@@ -78,12 +77,12 @@ export const controller = {
 
       const result = await service.signin(email);
 
-      if (!result){
-        throw new Error('User not found')
+      if (!result) {
+        throw new Error("User not found");
       }
 
-      if (result.isActive === false){
-        throw new Error('User is not active')
+      if (result.isActive === false) {
+        throw new Error("User is not active");
       }
 
       const payload: UserPayload = {
@@ -107,12 +106,12 @@ export const controller = {
       );
 
       res.json({
-        status:200,
+        status: 200,
         message: "Email sended successfully",
         data: message.accepted,
       });
     } catch (error: any) {
-      next(error)
+      next(error);
     }
   },
   resetPassword: async (req: Request, res: Response, next: NextFunction) => {
@@ -123,19 +122,19 @@ export const controller = {
       const result = await service.findById(Number(id));
 
       if (password !== repet_password) {
-        throw new Error('Passwords do not match')
+        throw new Error("Passwords do not match");
       }
 
       if (!result) {
-        throw new Error('User not found')
+        throw new Error("User not found");
       }
 
-      if (result.isActive === false){
-        throw new Error('User is not active')
+      if (result.isActive === false) {
+        throw new Error("User is not active");
       }
 
-      if (!verifyToken(token, development.JWT_SECRET_TOKEN_CHANGE_PASSWORD)){
-        throw new Error('Token is invalid or expired')
+      if (!verifyToken(token, development.JWT_SECRET_TOKEN_CHANGE_PASSWORD)) {
+        throw new Error("Token is invalid or expired");
       }
 
       const data: UserUpdatePassword = {
@@ -156,39 +155,33 @@ export const controller = {
       );
 
       res.json({
-        status : 200,  
+        status: 200,
         message: "Password changed successfully",
         user,
-        messageId : message.messageId
+        messageId: message.messageId,
       });
     } catch (error: any) {
-      next(error)
+      next(error);
     }
   },
   verify: async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const token = req.headers.authorization?.split(" ")[1];
 
-      const  token  = req.headers.authorization?.split(" ")[1]
-      
       // const token = cookies?.split("=")[1];
 
       if (!token) {
-
-        throw new Error('Token is required')
+        throw new Error("Token is required");
       }
-
-      console.log(token);
-      
 
       const validToken = verifyToken(
         token,
         development.JWT_SECRET_ACCESS_TOKEN
       );
 
-      if (!validToken){
-        throw new Error('Token is invalid or expired')
+      if (!validToken) {
+        throw new Error("Token is invalid or expired");
       }
-
 
       const { payload }: any = validToken;
       const _id = payload.id;
@@ -196,37 +189,37 @@ export const controller = {
       const user = await service.findById(Number(_id));
 
       if (!user) {
-        throw new Error('User not found')
+        throw new Error("User not found");
       }
 
       res.json({
-        status:200,
+        status: 200,
         id: user.id,
         fullname: user.fullname,
         email: user.email,
         rol: user.profile,
-        token
+        token,
       });
     } catch (error: any) {
-      next(error)
+      next(error);
     }
   },
   changePassword: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { password, repet_password,id } = req.body;
+      const { password, repet_password, id } = req.body;
 
       const result = await service.findById(Number(id));
 
       if (!result) {
-        throw new Error('User not found')
+        throw new Error("User not found");
       }
 
-      if (result.isActive === false){
-        throw new Error('User is inactive')
+      if (result.isActive === false) {
+        throw new Error("User is inactive");
       }
 
       if (password !== repet_password) {
-        throw new Error('Passwords do not match')
+        throw new Error("Passwords do not match");
       }
 
       const data: UserUpdatePassword = {
@@ -247,13 +240,13 @@ export const controller = {
       );
 
       res.json({
-        status:200,
+        status: 200,
         message: "Password changed successfully",
         user,
-        messageId : message.messageId
+        messageId: message.messageId,
       });
     } catch (error: any) {
-      next(error)
+      next(error);
     }
   },
 };
